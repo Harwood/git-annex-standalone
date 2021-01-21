@@ -1,31 +1,30 @@
 # Maintainer: Thomas Jost <schnouki@schnouki.net>
 pkgname=git-annex-standalone
-pkgver=8.20201008
+pkgver=8.20200523
 pkgrel=1
 pkgdesc="Manage files with git, without checking their contents into git. Standalone version, with no Haskell dependency."
-arch=(x86_64)
+arch=('aarch64' 'x86_64')
 url="https://git-annex.branchable.com/"
 license=('GPL')
-depends=("file" "git" "lsof" "rsync" "sqlite")
+depends=("file" "git" "libffi" "lsof" "rsync" "sqlite")
 optdepends=()
 provides=("git-annex")
 conflicts=("git-annex")
-source=("git-annex-standalone-amd64-$pkgver.tar.gz::https://downloads.kitenet.net/git-annex/linux/current/git-annex-standalone-amd64.tar.gz"
-        "git-annex-standalone-amd64-$pkgver.tar.gz.sig::https://downloads.kitenet.net/git-annex/linux/current/git-annex-standalone-amd64.tar.gz.sig")
-md5sums=('SKIP'
-         'SKIP')
-_info_source="https://downloads.kitenet.net/git-annex/linux/current/git-annex-standalone-amd64.tar.gz.info"
-validpgpkeys=("40055C6AFD2D526B2961E78F5EE1DBA789C809CB")
+
+source_aarch64=("https://downloads.kitenet.net/git-annex/linux/current/git-annex-standalone-arm64.tar.gz"{,.info}{,.sig})
+source_x86_64=("https://downloads.kitenet.net/git-annex/linux/current/git-annex-standalone-amd64.tar.gz"{,.info}{,.sig})
 
 pkgver() {
-  curl "$_info_source" | awk 'NR==4'
+  awk 'NR==4' git-annex-standalone-*.tar.gz.info
 }
+
+validpgpkeys=("40055C6AFD2D526B2961E78F5EE1DBA789C809CB")
 
 package() {
   cd "$srcdir/git-annex.linux"
 
-  for lib in libffi.so.7; do
-    install -Dm644 usr/lib/x86_64-linux-gnu/$lib "$pkgdir/usr/share/$pkgname/lib/$lib"
+  for lib in $(ls lib/*-linux-gnu/libffi.so.*); do
+    install -Dm644 $lib "$pkgdir/usr/share/$pkgname/lib/$lib"
   done
 
   for exe in git-annex git-annex-shell; do
@@ -48,6 +47,11 @@ EOF
   done
 }
 
-# Local Variables:
-# pkgbuild-update-sums-on-save: nil
-# End:
+md5sums_aarch64=('2becc4d5cc61bbc80ea645a12085f6ce'
+                 'SKIP'
+                 '91267b3a38146f13ff7a9c7a877569f1'
+                 'SKIP')
+md5sums_x86_64=('aed16a47d00e11d2e93b3891f9912191'
+                'SKIP'
+                'a0587c65fc3131b918e3b9c712413a8d'
+                'SKIP')
